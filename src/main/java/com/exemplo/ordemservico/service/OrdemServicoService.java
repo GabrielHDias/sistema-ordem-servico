@@ -1,12 +1,16 @@
 package com.exemplo.ordemservico.service;
 
 import com.exemplo.ordemservico.enums.StatusOS;
+import com.exemplo.ordemservico.model.Cliente;
 import com.exemplo.ordemservico.model.OrdemServico;
+import com.exemplo.ordemservico.model.Tecnico;
 import com.exemplo.ordemservico.repository.OrdemServicoRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -43,5 +47,75 @@ public class OrdemServicoService {
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Ordem de serviço não encontrada: " + id));
+    }
+
+    // REGRA 2: a OS só pode ser aberta para um cliente cadastrado
+    private Cliente validarClienteCadastrado(OrdemServico os) {
+        if (os.getCliente() == null || os.getCliente().getId() == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Informe o id do cliente");
+        }
+        return clienteService.buscarPorId(os.getCliente().getId());
+    }
+
+    // REGRA 3: ao abrir, a OS recebe a data de abertura e o status ABERTA
+    public OrdemServico abrir(OrdemServico os) {
+        Cliente cliente = validarClienteCadastrado(os); // usa a Regra 2
+        os.setCliente(cliente);
+        os.setDataAbertura(LocalDateTime.now());
+        os.setStatus(StatusOS.ABERTA);
+        return ordemServicoRepository.save(os);
+    }
+
+    // REGRA 4: uma OS CONCLUIDA ou CANCELADA não pode mais ser alterada
+    private void validarOsNaoFinalizada(OrdemServico os) {
+        if (os.getStatus() == StatusOS.CONCLUIDA
+                || os.getStatus() == StatusOS.CANCELADA) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "A OS " + os.getId() + " já está " + os.getStatus());
+        }
+    }
+
+    // REGRA 5: ao atribuir um técnico, a OS passa para EM_ANDAMENTO
+    public OrdemServico atribuirTecnico(Long osId, Long tecnicoId) {
+        OrdemServico os = buscarPorId(osId);
+        validarOsNaoFinalizada(os); // usa a Regra 4
+
+        Tecnico tecnico = tecnicoService.buscarPorId(tecnicoId);
+        os.setTecnico(tecnico);
+        os.setStatus(StatusOS.EM_ANDAMENTO);
+        return ordemServicoRepository.save(os);
+    }
+
+    // REGRA 6: só é possível concluir uma OS que tenha técnico
+    private void validarTecnicoAtribuido(OrdemServico os) {
+        if (os.getTecnico() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Atribua um técnico antes de concluir");
+        }
+    }
+
+    // REGRA 7: ao concluir, a OS recebe valor,
+    // data de fechamento e status CONCLUIDA
+    public OrdemServico concluir(Long osId, BigDecimal valor) {
+        OrdemServico os = buscarPorId(osId);
+        validarOsNaoFinalizada(os); // usa a Regra 4
+        validarTecnicoAtribuido(os); // usa a Regra 6
+
+        os.setValor(valor);
+        os.setDataFechamento(LocalDateTime.now());
+        os.setStatus(StatusOS.CONCLUIDA);
+        return ordemServicoRepository.save(os);
+    }
+
+    // REGRA 8: ao cancelar, a OS recebe data de fechamento
+    // e status CANCELADA
+    public OrdemServico cancelar(Long osId) {
+        OrdemServico os = buscarPorId(osId);
+        validarOsNaoFinalizada(os); // usa a Regra 4
+
+        os.setDataFechamento(LocalDateTime.now());
+        os.setStatus(StatusOS.CANCELADA);
+        return ordemServicoRepository.save(os);
     }
 }
