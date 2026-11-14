@@ -147,6 +147,10 @@ button.perigo {
   color: #5c6775;
 }
 
+.tabela-rolagem {
+  overflow-x: auto;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
