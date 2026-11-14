@@ -100,12 +100,21 @@ public class OrdemServicoService {
         }
     }
 
+    // REGRA 10: o valor ao concluir uma OS deve ser maior que zero
+    private void validarValorMaiorQueZero(BigDecimal valor) {
+        if (valor == null || valor.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "O valor deve ser maior que zero");
+        }
+    }
+
     // REGRA 7: ao concluir, a OS recebe valor,
     // data de fechamento e status CONCLUIDA
     public OrdemServico concluir(Long osId, BigDecimal valor) {
         OrdemServico os = buscarPorId(osId);
         validarOsNaoFinalizada(os); // usa a Regra 4
         validarTecnicoAtribuido(os); // usa a Regra 6
+        validarValorMaiorQueZero(valor); // usa a Regra 10
 
         os.setValor(valor);
         os.setDataFechamento(LocalDateTime.now());
