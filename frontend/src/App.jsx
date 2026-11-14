@@ -1,5 +1,6 @@
 import { NavLink, Route, Routes } from "react-router-dom"
 import Clientes from "./pages/Clientes.jsx"
+import Tecnicos from "./pages/Tecnicos.jsx"
 
 export default function App() {
   return (
@@ -13,11 +14,15 @@ export default function App() {
           <NavLink to="/" end className={({ isActive }) => (isActive ? "ativo" : undefined)}>
             Clientes
           </NavLink>
+          <NavLink to="/tecnicos" className={({ isActive }) => (isActive ? "ativo" : undefined)}>
+            Técnicos
+          </NavLink>
         </nav>
       </header>
       <main>
         <Routes>
           <Route path="/" element={<Clientes />} />
+          <Route path="/tecnicos" element={<Tecnicos />} />
         </Routes>
       </main>
     </div>
