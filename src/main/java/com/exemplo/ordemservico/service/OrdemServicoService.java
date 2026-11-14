@@ -1,5 +1,6 @@
 package com.exemplo.ordemservico.service;
 
+import com.exemplo.ordemservico.enums.Prioridade;
 import com.exemplo.ordemservico.enums.StatusOS;
 import com.exemplo.ordemservico.model.Cliente;
 import com.exemplo.ordemservico.model.OrdemServico;
@@ -40,6 +41,10 @@ public class OrdemServicoService {
 
     public List<OrdemServico> listarPorCliente(Long clienteId) {
         return ordemServicoRepository.findByClienteId(clienteId);
+    }
+
+    public List<OrdemServico> listarPorPrioridade(Prioridade prioridade) {
+        return ordemServicoRepository.findByPrioridade(prioridade);
     }
 
     public OrdemServico buscarPorId(Long id) {

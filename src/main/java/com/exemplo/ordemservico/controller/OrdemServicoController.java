@@ -1,5 +1,6 @@
 package com.exemplo.ordemservico.controller;
 
+import com.exemplo.ordemservico.enums.Prioridade;
 import com.exemplo.ordemservico.enums.StatusOS;
 import com.exemplo.ordemservico.model.OrdemServico;
 import com.exemplo.ordemservico.service.OrdemServicoService;
@@ -39,6 +40,12 @@ public class OrdemServicoController {
     @GetMapping("/cliente/{clienteId}")
     public List<OrdemServico> listarPorCliente(@PathVariable Long clienteId) {
         return ordemServicoService.listarPorCliente(clienteId);
+    }
+
+    // GET /ordens/prioridade/ALTA
+    @GetMapping("/prioridade/{prioridade}")
+    public List<OrdemServico> listarPorPrioridade(@PathVariable Prioridade prioridade) {
+        return ordemServicoService.listarPorPrioridade(prioridade);
     }
 
     // POST /ordens
