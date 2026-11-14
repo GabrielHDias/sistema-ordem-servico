@@ -39,6 +39,26 @@ mvn spring-boot:run
 
 A aplicação escuta em `http://localhost:8080`. Nas requisições com corpo, envie o cabeçalho `Content-Type: application/json`.
 
+## Front-end
+
+A pasta `frontend/` é uma interface React com Vite, em JavaScript. As telas são Clientes, Técnicos e Ordens de serviço. O texto da interface está em português e as mensagens de erro da API (CPF duplicado, Regra 9, Regra 10 e as demais) aparecem na tela.
+
+O navegador em `http://localhost:5173` chama a API em `http://localhost:8080`. A classe `CorsConfig` libera essa origem. Um proxy do Vite também evitaria o CORS durante o desenvolvimento, mas a configuração no backend deixa explícito que o front-end pode falar com a API e continua valendo mesmo fora do `npm run dev`.
+
+Com a API já no ar, em outro terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Abra `http://localhost:5173`. Para gerar os arquivos estáticos:
+
+```bash
+npm run build
+```
+
 ## Endpoints
 
 ### Clientes — `/clientes`
