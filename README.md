@@ -26,9 +26,10 @@ spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 server.error.include-message=always
+spring.web.error.include-message=always
 ```
 
-`ddl-auto=update` cria e atualiza as tabelas `clientes`, `tecnicos` e `ordens_servico` na subida da aplicação.
+`ddl-auto=update` cria e atualiza as tabelas `clientes`, `tecnicos` e `ordens_servico` na subida da aplicação. No Spring Boot 4 a propriedade do slide (`server.error.include-message`) passou a se chamar `spring.web.error.include-message`. As duas ficam no arquivo: a do slide e a que esta versão realmente lê. Sem a chave nova, o JSON de erro volta sem o campo `message`.
 
 Suba a API:
 
