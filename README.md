@@ -48,7 +48,7 @@ A aplicação escuta em `http://localhost:8080`. Nas requisições com corpo, en
 | GET | `/clientes/{id}` | 200 | 404 se não existir |
 | POST | `/clientes` | 201 | Regra 1: CPF duplicado responde 400 |
 | PUT | `/clientes/{id}` | 200 | Atualiza nome, telefone e e-mail. O CPF não muda |
-| DELETE | `/clientes/{id}` | 204 | 404 se não existir |
+| DELETE | `/clientes/{id}` | 204 | 404 se não existir. Regra 9: 400 se o cliente já tiver OS |
 
 ### Técnicos — `/tecnicos`
 
@@ -68,9 +68,10 @@ A aplicação escuta em `http://localhost:8080`. Nas requisições com corpo, en
 | GET | `/ordens?status=ABERTA` | 200 | nenhuma |
 | GET | `/ordens/{id}` | 200 | nenhuma; 404 se não existir |
 | GET | `/ordens/cliente/{clienteId}` | 200 | nenhuma |
+| GET | `/ordens/prioridade/{prioridade}` | 200 | nenhuma |
 | POST | `/ordens` | 201 | 2 e 3 |
 | PUT | `/ordens/{id}/tecnico/{tecnicoId}` | 200 | 4 e 5 |
-| PUT | `/ordens/{id}/concluir?valor=250.00` | 200 | 4, 6 e 7 |
+| PUT | `/ordens/{id}/concluir?valor=250.00` | 200 | 4, 6, 7 e 10 |
 | PUT | `/ordens/{id}/cancelar` | 200 | 4 e 8 |
 
 Status possíveis: `ABERTA`, `EM_ANDAMENTO`, `CONCLUIDA`, `CANCELADA`.  
@@ -158,3 +159,17 @@ POST `/ordens`:
 ```
 
 Depois PUT `/ordens/2/cancelar`. A ordem fica `CANCELADA` e recebe `dataFechamento`.
+
+## Exercícios da página 55
+
+### Consulta por prioridade
+
+GET `/ordens/prioridade/ALTA` devolve as ordens com essa prioridade. O valor do caminho é `BAIXA`, `MEDIA` ou `ALTA`. Não há regra de negócio: o repositório usa `findByPrioridade`.
+
+### Regra 9 — cliente com OS não pode ser excluído
+
+DELETE `/clientes/1`, depois que a Maria já tem uma ordem, responde **400** com a mensagem `Cliente possui ordem de serviço cadastrada`. O cliente continua no banco. Um cliente sem ordem é excluído com **204**.
+
+### Regra 10 — valor ao concluir deve ser maior que zero
+
+PUT `/ordens/1/concluir?valor=0` (ou sem o parâmetro `valor`, ou com valor negativo) responde **400**, `O valor deve ser maior que zero`. A ordem só é concluída quando o valor é maior que zero, como em `?valor=250.00`.
